@@ -11,3 +11,5 @@ bevy = {version = "0.5", features = ["vorbis"]}
 rand = "0.8"
 ron = "0.6"
 serde = "1"
+serde_derive = "1"
+noise = "0.7"
