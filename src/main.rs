@@ -1,12 +1,22 @@
 use bevy::prelude::*;
+use log::LevelFilter;
+use simplelog::{ColorChoice, Config, TermLogger, TerminalMode};
+
+mod assets;
 
 struct Person;
 
 struct Name(String);
 
 fn add_people(mut commands: Commands) {
-    commands.spawn().insert(Person).insert(Name("Sebastian Schmidt".to_string()));
-    commands.spawn().insert(Person).insert(Name("Ilona Pohjavirta".to_string()));
+    commands
+        .spawn()
+        .insert(Person)
+        .insert(Name("Sebastian Schmidt".to_string()));
+    commands
+        .spawn()
+        .insert(Person)
+        .insert(Name("Ilona Pohjavirta".to_string()));
 }
 
 struct GreetTimer(Timer);
@@ -30,6 +40,14 @@ impl Plugin for HelloPlugin {
 }
 
 fn main() {
+    TermLogger::init(
+        LevelFilter::Debug,
+        Config::default(),
+        TerminalMode::Mixed,
+        ColorChoice::Always,
+    )
+    .unwrap();
+
     App::build()
         .add_plugins(DefaultPlugins)
         .add_plugin(HelloPlugin)
