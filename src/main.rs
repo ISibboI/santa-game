@@ -1,47 +1,29 @@
 use bevy::prelude::*;
+use crate::assets::SantaAssetPlugin;
+use crate::levels::SantaLevelPlugin;
 use log::LevelFilter;
 use simplelog::{ColorChoice, Config, TermLogger, TerminalMode};
+use crate::camera::SantaCameraPlugin;
+use crate::player::SantaPlayerPlugin;
 
 mod assets;
+mod levels;
+mod camera;
+mod player;
 
-struct Person;
+fn santa_init_system(mut commands: Commands) {}
 
-struct Name(String);
+pub struct SantaInitPlugin;
 
-fn add_people(mut commands: Commands) {
-    commands
-        .spawn()
-        .insert(Person)
-        .insert(Name("Sebastian Schmidt".to_string()));
-    commands
-        .spawn()
-        .insert(Person)
-        .insert(Name("Ilona Pohjavirta".to_string()));
-}
-
-struct GreetTimer(Timer);
-
-fn greet_people(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&Name, With<Person>>) {
-    if timer.0.tick(time.delta()).just_finished() {
-        for name in query.iter() {
-            println!("hello {}!", name.0);
-        }
-    }
-}
-
-pub struct HelloPlugin;
-
-impl Plugin for HelloPlugin {
+impl Plugin for SantaInitPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.insert_resource(GreetTimer(Timer::from_seconds(2.0, true)))
-            .add_startup_system(add_people.system())
-            .add_system(greet_people.system());
+        app.add_startup_system(santa_init_system.system());
     }
 }
 
 fn main() {
     TermLogger::init(
-        LevelFilter::Debug,
+        LevelFilter::Info,
         Config::default(),
         TerminalMode::Mixed,
         ColorChoice::Always,
@@ -50,6 +32,12 @@ fn main() {
 
     App::build()
         .add_plugins(DefaultPlugins)
-        .add_plugin(HelloPlugin)
+        .add_plugin(SantaInitPlugin)
+        .add_plugin(SantaAssetPlugin)
+        .add_plugin(SantaCameraPlugin)
+        .add_plugin(SantaLevelPlugin)
+        .add_plugin(SantaPlayerPlugin)
+        //.add_plugin(LogDiagnosticsPlugin::default())
+        //.add_plugin(FrameTimeDiagnosticsPlugin::default())
         .run();
 }
