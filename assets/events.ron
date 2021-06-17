@@ -1,0 +1,21 @@
+#![enable(implicit_some)]
+
+Prefab (entities: [
+(data: (triggers: [Timed(1.0)], actions: [
+    Dialogue((text: "Hello, I'm Santa!", sound: "Hello1")),
+    Dialogue((text: "Help me distribute all the presents!", sound: "Hello2")),
+    Dialogue((text: "And do not unwrap them yourself!", sound: "Hello3")),
+])),
+(data: (triggers: [Timed(5.0)], actions: [
+    Dialogue((text: "But first, you have to walk to the right.", sound: "Tutorial1")),
+    Dialogue((text: "To do that, press <D> on your keyboard.", sound: "Tutorial2")),
+    Dialogue((text: "Do it now!", sound: "Tutorial3")),
+])),
+(data: (triggers: [Area(Area(x1: 300.0, x2: 319.0, y1: 0.0, y2: 100.0))], actions: [
+    Dialogue((text: "You found the door! Press <F> when being close to enter the house!", sound: "Arrive1")),
+])),
+(data: (triggers: [Area(Area(x1: 320.0, x2: 400.0, y1: 0.0, y2: 100.0)), ActionKey], actions: [
+    Dialogue((text: "You are entering the house!", sound: "EnterHouse1")),
+    ChangeLevel((name: "outside", entry_point: "default")),
+])),
+])

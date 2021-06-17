@@ -1,0 +1,7 @@
+#![enable(implicit_some)]
+
+//Prefab (entities: [(data:
+(levels: [
+(name: "outside", bounding_box: (x1: 0.0, y1: 0.0, x2: 400.0, y2: 200.0), entry_points: {"default": [100.0, 16.0]})
+])
+//)])

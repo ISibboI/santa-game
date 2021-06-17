@@ -1,0 +1,11 @@
+#![enable(implicit_some)]
+
+Prefab (entities: [
+(data: PlayerPrefab(
+    player: Player(speed: 30.0, jump_power: 100.0),
+    transform: Transform(translation: (50.0, 50.0, 0.0), rotation: (0.0, 0.0, 0.0), scale: (0.5, 0.5, 0.5)),
+    sprite_render: SpriteRender(sprite_sheet: Asset(File("texture/santa_spritesheet.ron")), sprite_number: 0),
+    gravity_affected: GravityAffected(terminal_velocity: 110.0),
+    world_collision_affected: WorldCollisionAffected(width: 18.0, height: 25.5),
+])),
+])

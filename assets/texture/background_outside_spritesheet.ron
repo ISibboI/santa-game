@@ -1,0 +1,12 @@
+(
+    texture_width: 400,
+    texture_height: 200,
+    sprites: [
+        (
+            x: 0,
+            y: 0,
+            width: 400,
+            height: 200,
+        ),
+    ],
+)

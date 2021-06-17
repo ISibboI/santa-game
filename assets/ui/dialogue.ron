@@ -1,0 +1,33 @@
+#![enable(implicit_some)]
+Container(
+    transform: (
+        id: "dialogue_box",
+        x: 0.0,
+        y: 0.0,
+        width: 500.0,
+        height: 250.0,
+        anchor: Middle,
+        transparent: false,
+    ),
+    // background: SolidColor(0.0, 0.0, 0.0, 0.5),
+    children: [
+        Label(
+            transform: (
+                id: "dialogue",
+                x: 0.0,
+                y: 0.0,
+                width: 500.0,
+                height: 150.0,
+                anchor: Middle,
+                transparent: true,
+            ),
+            text: (
+                text: "",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 25.,
+                color: (1.0, 1.0, 1.0, 1.0),
+                line_mode: Wrap,
+            ),
+        )
+    ]
+)
