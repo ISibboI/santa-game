@@ -22,6 +22,7 @@ pub struct SantaAssets {
     pub santa: Handle<TextureAtlas>,
     pub snowflakes: Handle<TextureAtlas>,
     pub outside_background: Handle<TextureAtlas>,
+    pub indoors_background: Handle<TextureAtlas>,
 }
 
 fn load_asset<'a, P: Into<AssetPath<'a>>, R: Asset>(
@@ -99,6 +100,15 @@ fn load_assets_system(
         TextureAtlas::from_grid(outside_background, Vec2::new(540.0, 210.0), 1, 1);
     let outside_background = texture_atlases.add(outside_background);
 
+    let indoors_background = load_asset(
+        &server,
+        &mut loading,
+        "texture/background_indoors.png",
+    );
+    let indoors_background =
+        TextureAtlas::from_grid(indoors_background, Vec2::new(540.0, 210.0), 1, 1);
+    let indoors_background = texture_atlases.add(indoors_background);
+
     let mut assets = SantaAssets {
         // Fonts
         font: load_asset(&server, &mut loading, "font/square.ttf"),
@@ -110,6 +120,7 @@ fn load_assets_system(
         santa,
         snowflakes,
         outside_background,
+        indoors_background,
     };
 
     // Speech
