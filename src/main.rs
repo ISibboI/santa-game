@@ -7,6 +7,10 @@ use crate::render::SantaRenderPlugin;
 use bevy::prelude::*;
 use log::LevelFilter;
 use simplelog::{ColorChoice, Config, TermLogger, TerminalMode};
+use bevy::diagnostic::{LogDiagnosticsPlugin, FrameTimeDiagnosticsPlugin};
+
+#[macro_use]
+extern crate lazy_static;
 
 mod assets;
 mod camera;

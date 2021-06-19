@@ -1,4 +1,4 @@
-use crate::physics::Position;
+use crate::physics::{Position, Speed};
 use bevy::prelude::*;
 
 fn position_sprite_system(mut query: Query<(&mut Transform, &Position)>) {

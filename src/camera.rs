@@ -4,9 +4,11 @@ use bevy::prelude::*;
 use bevy::render::camera::{
     camera_system, Camera, CameraProjection, DepthCalculation, VisibleEntities,
 };
+use crate::levels::LevelCameraBoundary;
 
 pub struct SantaOrthoProjection {
-    projection_matrix: Mat4,
+    pub projection_matrix: Mat4,
+    pub viewport_dimensions: Rect<f32>,
 }
 
 impl CameraProjection for SantaOrthoProjection {
@@ -27,11 +29,17 @@ impl CameraProjection for SantaOrthoProjection {
             height *= scale_factor;
         }
 
+        self.viewport_dimensions = Rect {
+            left: -width / 2.0,
+            right: width / 2.0,
+            bottom: -height / 2.0,
+            top: height / 2.0,
+        };
         self.projection_matrix = Mat4::orthographic_rh(
-            -width / 2.0,
-            width / 2.0,
-            -height / 2.0,
-            height / 2.0,
+            self.viewport_dimensions.left,
+            self.viewport_dimensions.right,
+            self.viewport_dimensions.bottom,
+            self.viewport_dimensions.top,
             0.0,
             1000.0,
         );
@@ -46,6 +54,7 @@ impl Default for SantaOrthoProjection {
     fn default() -> Self {
         let mut result = Self {
             projection_matrix: Default::default(),
+            viewport_dimensions: Default::default(),
         };
         result.update(800.0, 600.0);
         result
@@ -68,13 +77,18 @@ fn init_camera_system(mut commands: Commands) {
 }
 
 fn follow_player_camera_system(
-    mut camera_query: Query<&mut Transform, With<Camera>>,
+    mut camera_query: Query<(&mut Transform, &SantaOrthoProjection), With<Camera>>,
     player_query: Query<&Position, With<Santa>>,
+    camera_boundary: Res<LevelCameraBoundary>,
 ) {
-    for mut camera_transform in camera_query.iter_mut() {
+    for (mut camera_transform, santa_ortho_projection) in camera_query.iter_mut() {
         for player_position in player_query.iter() {
-            camera_transform.translation.x = player_position.0.x;
-            camera_transform.translation.y = player_position.0.y;
+            camera_transform.translation.x = player_position.0.x
+                .max(camera_boundary.0.left - santa_ortho_projection.viewport_dimensions.left)
+                .min(camera_boundary.0.right - santa_ortho_projection.viewport_dimensions.right);
+            camera_transform.translation.y = player_position.0.y
+                .max(camera_boundary.0.bottom - santa_ortho_projection.viewport_dimensions.bottom)
+                .min(camera_boundary.0.top - santa_ortho_projection.viewport_dimensions.top);
         }
     }
 }
