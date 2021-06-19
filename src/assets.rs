@@ -1,8 +1,8 @@
+use bevy::asset::{Asset, AssetPath};
 use bevy::prelude::*;
-use std::ops::DerefMut;
-use std::collections::HashMap;
-use bevy::asset::{AssetPath, Asset};
 use bevy::sprite::Rect;
+use std::collections::HashMap;
+use std::ops::DerefMut;
 
 #[derive(Default)]
 pub struct AssetsLoading {
@@ -24,13 +24,22 @@ pub struct SantaAssets {
     pub outside_background: Handle<TextureAtlas>,
 }
 
-fn load_asset<'a, P: Into<AssetPath<'a>>, R: Asset>(server: &Res<AssetServer>, loading: &mut ResMut<AssetsLoading>, path: P) -> Handle<R> {
+fn load_asset<'a, P: Into<AssetPath<'a>>, R: Asset>(
+    server: &Res<AssetServer>,
+    loading: &mut ResMut<AssetsLoading>,
+    path: P,
+) -> Handle<R> {
     let asset = server.load(path);
     loading.remaining.push(asset.clone_untyped());
     asset
 }
 
-fn load_speech<'a, P: Into<AssetPath<'a>> + ToString>(server: &Res<AssetServer>, loading: &mut ResMut<AssetsLoading>, assets: &mut SantaAssets, path: P) {
+fn load_speech<'a, P: Into<AssetPath<'a>> + ToString>(
+    server: &Res<AssetServer>,
+    loading: &mut ResMut<AssetsLoading>,
+    assets: &mut SantaAssets,
+    path: P,
+) {
     let name = path.to_string();
     let name = name.split("/").last().unwrap().to_owned();
 
@@ -47,21 +56,47 @@ fn load_assets_system(
     // Textures
     let santa = load_asset(&server, &mut loading, "texture/santa_spritesheet.png");
     let mut santa = TextureAtlas::new_empty(santa, Vec2::new(111.0, 51.0));
-    santa.add_texture(Rect {min: Vec2::new(0.0, 0.0), max: Vec2::new(36.0, 51.0)});
-    santa.add_texture(Rect {min: Vec2::new(36.0, 0.0), max: Vec2::new(75.0, 51.0)});
-    santa.add_texture(Rect {min: Vec2::new(75.0, 0.0), max: Vec2::new(111.0, 51.0)});
+    santa.add_texture(Rect {
+        min: Vec2::new(0.0, 0.0),
+        max: Vec2::new(36.0, 51.0),
+    });
+    santa.add_texture(Rect {
+        min: Vec2::new(36.0, 0.0),
+        max: Vec2::new(75.0, 51.0),
+    });
+    santa.add_texture(Rect {
+        min: Vec2::new(75.0, 0.0),
+        max: Vec2::new(111.0, 51.0),
+    });
     let santa = texture_atlases.add(santa);
 
     let snowflake = load_asset(&server, &mut loading, "texture/snowflake_spritesheet.png");
     let mut snowflakes = TextureAtlas::new_empty(snowflake, Vec2::new(27.0, 13.0));
-    snowflakes.add_texture(Rect { min: Vec2::new(0.0, 0.0), max: Vec2::new(13.0, 13.0) });
-    snowflakes.add_texture(Rect { min: Vec2::new(13.0, 0.0), max: Vec2::new(20.0, 7.0) });
-    snowflakes.add_texture(Rect { min: Vec2::new(20.0, 0.0), max: Vec2::new(27.0, 7.0) });
-    snowflakes.add_texture(Rect { min: Vec2::new(13.0, 7.0), max: Vec2::new(17.0, 11.0) });
+    snowflakes.add_texture(Rect {
+        min: Vec2::new(0.0, 0.0),
+        max: Vec2::new(13.0, 13.0),
+    });
+    snowflakes.add_texture(Rect {
+        min: Vec2::new(13.0, 0.0),
+        max: Vec2::new(20.0, 7.0),
+    });
+    snowflakes.add_texture(Rect {
+        min: Vec2::new(20.0, 0.0),
+        max: Vec2::new(27.0, 7.0),
+    });
+    snowflakes.add_texture(Rect {
+        min: Vec2::new(13.0, 7.0),
+        max: Vec2::new(17.0, 11.0),
+    });
     let snowflakes = texture_atlases.add(snowflakes);
 
-    let outside_background = load_asset(&server, &mut loading, "texture/background_outside_spritesheet.png");
-    let outside_background = TextureAtlas::from_grid(outside_background, Vec2::new(540.0, 210.0), 1, 1);
+    let outside_background = load_asset(
+        &server,
+        &mut loading,
+        "texture/background_outside_spritesheet.png",
+    );
+    let outside_background =
+        TextureAtlas::from_grid(outside_background, Vec2::new(540.0, 210.0), 1, 1);
     let outside_background = texture_atlases.add(outside_background);
 
     let mut assets = SantaAssets {
@@ -74,12 +109,17 @@ fn load_assets_system(
         // Textures
         santa,
         snowflakes,
-        outside_background
+        outside_background,
     };
 
     // Speech
     load_speech(&server, &mut loading, &mut assets, "speech/arrive_1.ogg");
-    load_speech(&server, &mut loading, &mut assets, "speech/enter_house_1.ogg");
+    load_speech(
+        &server,
+        &mut loading,
+        &mut assets,
+        "speech/enter_house_1.ogg",
+    );
     load_speech(&server, &mut loading, &mut assets, "speech/hello_1.ogg");
     load_speech(&server, &mut loading, &mut assets, "speech/hello_2.ogg");
     load_speech(&server, &mut loading, &mut assets, "speech/hello_3.ogg");
