@@ -1,10 +1,10 @@
+use crate::levels::LevelCameraBoundary;
 use crate::physics::Position;
 use crate::player::Santa;
 use bevy::prelude::*;
 use bevy::render::camera::{
     camera_system, Camera, CameraProjection, DepthCalculation, VisibleEntities,
 };
-use crate::levels::LevelCameraBoundary;
 
 pub struct SantaOrthoProjection {
     pub projection_matrix: Mat4,
@@ -83,10 +83,14 @@ fn follow_player_camera_system(
 ) {
     for (mut camera_transform, santa_ortho_projection) in camera_query.iter_mut() {
         for player_position in player_query.iter() {
-            camera_transform.translation.x = player_position.0.x
+            camera_transform.translation.x = player_position
+                .0
+                .x
                 .max(camera_boundary.0.left - santa_ortho_projection.viewport_dimensions.left)
                 .min(camera_boundary.0.right - santa_ortho_projection.viewport_dimensions.right);
-            camera_transform.translation.y = player_position.0.y
+            camera_transform.translation.y = player_position
+                .0
+                .y
                 .max(camera_boundary.0.bottom - santa_ortho_projection.viewport_dimensions.bottom)
                 .min(camera_boundary.0.top - santa_ortho_projection.viewport_dimensions.top);
         }

@@ -34,14 +34,18 @@ fn gravity_system(mut query: Query<&mut Speed, With<Gravity>>) {
 
 fn level_boundary_system(
     level_boundary: Res<LevelPlayerBoundary>,
-    mut query: Query<(&mut Position, &mut Speed, &SpriteBoundary, Option<&mut GroundState>)>,
+    mut query: Query<(
+        &mut Position,
+        &mut Speed,
+        &SpriteBoundary,
+        Option<&mut GroundState>,
+    )>,
 ) {
     for (mut position, mut speed, sprite_boundary, mut ground_state) in query.iter_mut() {
         let min_x = level_boundary.0.left - sprite_boundary.0.left;
         let max_x = level_boundary.0.right - sprite_boundary.0.right;
         let min_y = level_boundary.0.bottom - sprite_boundary.0.bottom;
         let max_y = level_boundary.0.top - sprite_boundary.0.top;
-
 
         if position.0.x < min_x {
             position.0.x = min_x;
@@ -82,6 +86,7 @@ impl Plugin for SantaPhysicsPlugin {
                 .with_system(gravity_system.system().before("move"))
                 .with_system(move_system.system().label("move"))
                 .with_system(level_boundary_system.system().after("move")),
-        );
+        )
+            .insert_resource(GroundState::default());
     }
 }

@@ -1,7 +1,7 @@
 use crate::assets::SantaAssets;
-use crate::physics::{Gravity, Position, Speed, SpriteBoundary, GroundState, GRAVITY};
-use bevy::prelude::*;
+use crate::physics::{Gravity, GroundState, Position, Speed, SpriteBoundary, GRAVITY};
 use crate::TIME_STEP;
+use bevy::prelude::*;
 
 const MAX_WALK_SPEED: f32 = 50.0;
 const WALK_ACCELERATION: f32 = 100.0;
@@ -43,19 +43,37 @@ fn init_santa_system(
         .insert(GroundState::default());
 }
 
-fn control_santa_system(keyboard_input: Res<Input<KeyCode>>, mut santa_query: Query<(&mut Speed, &GroundState), With<Santa>>) {
+fn control_santa_system(
+    keyboard_input: Res<Input<KeyCode>>,
+    mut santa_query: Query<(&mut Speed, &GroundState), With<Santa>>,
+) {
     for (mut speed, ground_state) in santa_query.iter_mut() {
         if ground_state.on_ground {
             let left = keyboard_input.pressed(KeyCode::A) || keyboard_input.pressed(KeyCode::Left);
-            let right = keyboard_input.pressed(KeyCode::D) || keyboard_input.pressed(KeyCode::Right);
-            let jump = keyboard_input.pressed(KeyCode::W) || keyboard_input.pressed(KeyCode::Space);
+            let right =
+                keyboard_input.pressed(KeyCode::D) || keyboard_input.pressed(KeyCode::Right);
+            let jump = keyboard_input.pressed(KeyCode::W)
+                || keyboard_input.pressed(KeyCode::Up)
+                || keyboard_input.pressed(KeyCode::Space);
 
             let mut accelerating = false;
             if left && !right {
-                speed.0.x = (speed.0.x - (if speed.0.x <= 0.0 {WALK_ACCELERATION} else {WALK_DECELERATION}) * TIME_STEP).max(-MAX_WALK_SPEED);
+                speed.0.x = (speed.0.x
+                    - (if speed.0.x <= 0.0 {
+                        WALK_ACCELERATION
+                    } else {
+                        WALK_DECELERATION
+                    }) * TIME_STEP)
+                    .max(-MAX_WALK_SPEED);
                 accelerating = true;
             } else if right && !left {
-                speed.0.x = (speed.0.x + (if speed.0.x >= 0.0 {WALK_ACCELERATION} else {WALK_DECELERATION}) * TIME_STEP).min(MAX_WALK_SPEED);
+                speed.0.x = (speed.0.x
+                    + (if speed.0.x >= 0.0 {
+                        WALK_ACCELERATION
+                    } else {
+                        WALK_DECELERATION
+                    }) * TIME_STEP)
+                    .min(MAX_WALK_SPEED);
                 accelerating = true;
             }
 
@@ -74,7 +92,19 @@ fn control_santa_system(keyboard_input: Res<Input<KeyCode>>, mut santa_query: Qu
     }
 }
 
-fn animate_santa_system(time: Res<Time>, mut query: Query<(&mut Transform, &Speed, &GroundState, &mut AnimationTimer, &mut TextureAtlasSprite), With<Santa>>) {
+fn animate_santa_system(
+    time: Res<Time>,
+    mut query: Query<
+        (
+            &mut Transform,
+            &Speed,
+            &GroundState,
+            &mut AnimationTimer,
+            &mut TextureAtlasSprite,
+        ),
+        With<Santa>,
+    >,
+) {
     for (mut transform, speed, ground_state, mut animation_timer, mut sprite) in query.iter_mut() {
         let mut moving = false;
 
@@ -113,7 +143,13 @@ pub struct SantaPlayerPlugin;
 impl Plugin for SantaPlayerPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_startup_system(init_santa_system.system())
-            .add_system_to_stage(CoreStage::PreUpdate, control_santa_system.system().label("control_santa"))
-            .add_system_to_stage(CoreStage::PreUpdate, animate_santa_system.system().after("control_santa"));
+            .add_system_to_stage(
+                CoreStage::PreUpdate,
+                control_santa_system.system().label("control_santa"),
+            )
+            .add_system_to_stage(
+                CoreStage::PreUpdate,
+                animate_santa_system.system().after("control_santa"),
+            );
     }
 }

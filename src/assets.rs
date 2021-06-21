@@ -11,12 +11,19 @@ pub struct AssetsLoading {
     remaining: Vec<HandleUntyped>,
 }
 
+pub struct AssetsReady(pub bool);
+
+pub struct Speech {
+    pub audio: Handle<AudioSource>,
+    pub text: String,
+}
+
 pub struct SantaAssets {
     // Fonts
     pub font: Handle<Font>,
 
     // Speech
-    pub speech: HashMap<String, Handle<AudioSource>>,
+    pub speech: HashMap<String, Speech>,
 
     // Textures
     pub santa: Handle<TextureAtlas>,
@@ -40,12 +47,20 @@ fn load_speech<'a, P: Into<AssetPath<'a>> + ToString>(
     loading: &mut ResMut<AssetsLoading>,
     assets: &mut SantaAssets,
     path: P,
+    text: String,
 ) {
     let name = path.to_string();
-    let name = name.split("/").last().unwrap().to_owned();
+    let name = name
+        .split("/")
+        .last()
+        .unwrap()
+        .split(".")
+        .next()
+        .unwrap()
+        .to_owned();
 
-    let speech = load_asset(server, loading, path);
-    assets.speech.insert(name, speech);
+    let audio = load_asset(server, loading, path);
+    assets.speech.insert(name, Speech { audio, text });
 }
 
 fn load_assets_system(
@@ -100,11 +115,7 @@ fn load_assets_system(
         TextureAtlas::from_grid(outside_background, Vec2::new(540.0, 210.0), 1, 1);
     let outside_background = texture_atlases.add(outside_background);
 
-    let indoors_background = load_asset(
-        &server,
-        &mut loading,
-        "texture/background_indoors.png",
-    );
+    let indoors_background = load_asset(&server, &mut loading, "texture/background_indoors.png");
     let indoors_background =
         TextureAtlas::from_grid(indoors_background, Vec2::new(540.0, 210.0), 1, 1);
     let indoors_background = texture_atlases.add(indoors_background);
@@ -124,24 +135,72 @@ fn load_assets_system(
     };
 
     // Speech
-    load_speech(&server, &mut loading, &mut assets, "speech/arrive_1.ogg");
+    load_speech(
+        &server,
+        &mut loading,
+        &mut assets,
+        "speech/arrive_1.ogg",
+        "You found the door! Press <F> when being close to enter the house!".to_owned(),
+    );
     load_speech(
         &server,
         &mut loading,
         &mut assets,
         "speech/enter_house_1.ogg",
+        "You are entering the house!".to_owned(),
     );
-    load_speech(&server, &mut loading, &mut assets, "speech/hello_1.ogg");
-    load_speech(&server, &mut loading, &mut assets, "speech/hello_2.ogg");
-    load_speech(&server, &mut loading, &mut assets, "speech/hello_3.ogg");
-    load_speech(&server, &mut loading, &mut assets, "speech/tutorial_1.ogg");
-    load_speech(&server, &mut loading, &mut assets, "speech/tutorial_2.ogg");
-    load_speech(&server, &mut loading, &mut assets, "speech/tutorial_3.ogg");
+    load_speech(
+        &server,
+        &mut loading,
+        &mut assets,
+        "speech/hello_1.ogg",
+        "Hello, I'm Santa!".to_owned(),
+    );
+    load_speech(
+        &server,
+        &mut loading,
+        &mut assets,
+        "speech/hello_2.ogg",
+        "Help me distribute all the presents!".to_owned(),
+    );
+    load_speech(
+        &server,
+        &mut loading,
+        &mut assets,
+        "speech/hello_3.ogg",
+        "And do not unwrap them yourself!".to_owned(),
+    );
+    load_speech(
+        &server,
+        &mut loading,
+        &mut assets,
+        "speech/tutorial_1.ogg",
+        "But first, you have to walk to the right.".to_owned(),
+    );
+    load_speech(
+        &server,
+        &mut loading,
+        &mut assets,
+        "speech/tutorial_2.ogg",
+        "To do that, press <D> on your keyboard.".to_owned(),
+    );
+    load_speech(
+        &server,
+        &mut loading,
+        &mut assets,
+        "speech/tutorial_3.ogg",
+        "Do it now!".to_owned(),
+    );
 
     commands.insert_resource(assets);
+    commands.insert_resource(AssetsReady(false));
 }
 
-fn check_assets_ready_system(server: Res<AssetServer>, mut loading: ResMut<AssetsLoading>) {
+fn check_assets_ready_system(
+    server: Res<AssetServer>,
+    mut loading: ResMut<AssetsLoading>,
+    mut assets_ready: ResMut<AssetsReady>,
+) {
     use bevy::asset::LoadState;
 
     let AssetsLoading {
@@ -170,12 +229,14 @@ fn check_assets_ready_system(server: Res<AssetServer>, mut loading: ResMut<Asset
         if *error_count == 0 {
             info!("Loaded all {} assets successfully", loaded_count);
         } else {
-            info!(
+            error!(
                 "Finished loading {} assets with {} errors",
                 *loaded_count + *error_count,
                 error_count
             )
         }
+
+        assets_ready.0 = true;
     }
 }
 

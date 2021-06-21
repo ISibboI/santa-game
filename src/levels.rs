@@ -1,7 +1,8 @@
 use crate::assets::SantaAssets;
-use bevy::prelude::*;
 use crate::physics::Position;
 use crate::player::Santa;
+use crate::snowflakes::Snowflakes;
+use bevy::prelude::*;
 
 #[derive(StageLabel, Clone, Hash, Debug, Eq, PartialEq)]
 pub enum LevelState {
@@ -45,6 +46,7 @@ fn enter_outside_level_event(
                 transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
                 ..Default::default()
             });
+            parent.spawn().insert(Snowflakes);
         });
     commands.insert_resource(LevelPlayerBoundary(Rect {
         top: 105.0,
@@ -63,21 +65,21 @@ fn enter_outside_level_event(
     }
 }
 
-fn update_outside_level_event(mut state: ResMut<State<LevelState>>,
-                              player_query: Query<&Position, With<Santa>>,
-mut spawn_point: ResMut<SpawnPoint>) {
+fn update_outside_level_event(
+    mut state: ResMut<State<LevelState>>,
+    player_query: Query<&Position, With<Santa>>,
+    mut spawn_point: ResMut<SpawnPoint>,
+    keyboard_input: Res<Input<KeyCode>>,
+) {
     for position in player_query.iter() {
-        if position.0.x >= 200.0 {
+        if position.0.x >= 200.0 && keyboard_input.just_released(KeyCode::F) {
             state.set(LevelState::Indoors).unwrap();
             spawn_point.0 = Vec2::new(-80.0, -85.0);
         }
     }
 }
 
-fn exit_outside_level_event(
-    mut commands: Commands,
-    query: Query<Entity, With<OutsideLevel>>,
-) {
+fn exit_outside_level_event(mut commands: Commands, query: Query<Entity, With<OutsideLevel>>) {
     for entity in query.iter() {
         commands.entity(entity).despawn_recursive();
     }
@@ -127,21 +129,21 @@ fn enter_indoors_level_event(
     }
 }
 
-fn update_indoors_level_event(mut state: ResMut<State<LevelState>>,
-                              player_query: Query<&Position, With<Santa>>,
-mut spawn_point: ResMut<SpawnPoint>) {
+fn update_indoors_level_event(
+    mut state: ResMut<State<LevelState>>,
+    player_query: Query<&Position, With<Santa>>,
+    mut spawn_point: ResMut<SpawnPoint>,
+    keyboard_input: Res<Input<KeyCode>>,
+) {
     for position in player_query.iter() {
-        if position.0.x <= -85.0 {
+        if position.0.x <= -85.0 && keyboard_input.just_released(KeyCode::F) {
             state.set(LevelState::Outside).unwrap();
             spawn_point.0 = Vec2::new(195.0, -85.0);
         }
     }
 }
 
-fn exit_indoors_level_event(
-    mut commands: Commands,
-    query: Query<Entity, With<IndoorsLevel>>,
-) {
+fn exit_indoors_level_event(mut commands: Commands, query: Query<Entity, With<IndoorsLevel>>) {
     for entity in query.iter() {
         commands.entity(entity).despawn_recursive();
     }
