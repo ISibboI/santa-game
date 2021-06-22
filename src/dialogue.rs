@@ -1,9 +1,9 @@
 use crate::assets::{AssetsReady, SantaAssets};
-use bevy::prelude::*;
-use std::collections::VecDeque;
+use crate::levels::IndoorsLevel;
 use crate::physics::{GroundState, Position};
 use crate::player::Santa;
-use crate::levels::IndoorsLevel;
+use bevy::prelude::*;
+use std::collections::VecDeque;
 
 #[derive(Default)]
 pub struct DialogueQueue {
@@ -40,8 +40,14 @@ fn dialogue_trigger_system(
 ) {
     dialogue_timer.0.tick(time.delta());
     let has_active_dialogue = active_dialogue_query.iter().next().is_some();
-    let on_ground = santa_query.iter().any(|(position, ground_state)| ground_state.on_ground);
-    let position = santa_query.iter().map(|(position, ground_state)| position).next().unwrap();
+    let on_ground = santa_query
+        .iter()
+        .any(|(position, ground_state)| ground_state.on_ground);
+    let position = santa_query
+        .iter()
+        .map(|(position, ground_state)| position)
+        .next()
+        .unwrap();
     let indoors = indoors_level_query.iter().next().is_some();
 
     match *dialogue_state {
@@ -64,7 +70,10 @@ fn dialogue_trigger_system(
         }
 
         DialogueState::Arrive => {
-            if !has_active_dialogue && position.0.x >= 100.0 && dialogue_timer.0.elapsed_secs() > 1.0 {
+            if !has_active_dialogue
+                && position.0.x >= 100.0
+                && dialogue_timer.0.elapsed_secs() > 1.0
+            {
                 dialogue_queue.backlog.push_back("arrive_1".to_owned());
                 *dialogue_state = DialogueState::EnterHouse;
             }
@@ -111,7 +120,7 @@ fn dialogue_execution_system(
             dialogue_timer.0.reset();
 
             commands
-                .spawn_bundle( NodeBundle {
+                .spawn_bundle(NodeBundle {
                     style: Style {
                         size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                         justify_content: JustifyContent::Center,
@@ -123,41 +132,43 @@ fn dialogue_execution_system(
                 })
                 .insert(ActiveDialogue)
                 .with_children(|parent| {
-                    parent.spawn_bundle(NodeBundle {
-                        style: Style {
-                            size: Size::new(Val::Percent(90.0), Val::Px(160.0)),
-                            justify_content: JustifyContent::Center,
-                            align_content: AlignContent::Center,
-                            align_self: AlignSelf::Center,
-                            ..Default::default()
-                        },
-                        material: materials.add(Color::ANTIQUE_WHITE.into()),
-                        ..Default::default()
-                    }).with_children(|parent| {
-                        parent.spawn_bundle(TextBundle {
+                    parent
+                        .spawn_bundle(NodeBundle {
                             style: Style {
+                                size: Size::new(Val::Percent(90.0), Val::Px(160.0)),
+                                justify_content: JustifyContent::Center,
+                                align_content: AlignContent::Center,
                                 align_self: AlignSelf::Center,
-                                position_type: PositionType::Absolute,
                                 ..Default::default()
                             },
-                            // Use the `Text::with_section` constructor
-                            text: Text::with_section(
-                                // Accepts a `String` or any type that converts into a `String`, such as `&str`
-                                format!("{}\nPress <P>", speech.text),
-                                TextStyle {
-                                    font: santa_assets.font.clone(),
-                                    font_size: 64.0,
-                                    color: Color::BLACK,
-                                },
-                                // Note: You can use `Default::default()` in place of the `TextAlignment`
-                                TextAlignment {
-                                    horizontal: HorizontalAlign::Center,
+                            material: materials.add(Color::ANTIQUE_WHITE.into()),
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn_bundle(TextBundle {
+                                style: Style {
+                                    align_self: AlignSelf::Center,
+                                    position_type: PositionType::Absolute,
                                     ..Default::default()
                                 },
-                            ),
-                            ..Default::default()
+                                // Use the `Text::with_section` constructor
+                                text: Text::with_section(
+                                    // Accepts a `String` or any type that converts into a `String`, such as `&str`
+                                    format!("{}\nPress <P>", speech.text),
+                                    TextStyle {
+                                        font: santa_assets.font.clone(),
+                                        font_size: 64.0,
+                                        color: Color::BLACK,
+                                    },
+                                    // Note: You can use `Default::default()` in place of the `TextAlignment`
+                                    TextAlignment {
+                                        horizontal: HorizontalAlign::Center,
+                                        ..Default::default()
+                                    },
+                                ),
+                                ..Default::default()
+                            });
                         });
-                    });
                 });
         }
     }

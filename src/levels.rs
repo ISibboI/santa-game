@@ -1,7 +1,7 @@
 use crate::assets::SantaAssets;
 use crate::physics::Position;
 use crate::player::Santa;
-use crate::snowflakes::Snowflakes;
+use crate::snowflakes::init_snowflakes;
 use bevy::prelude::*;
 
 #[derive(StageLabel, Clone, Hash, Debug, Eq, PartialEq)]
@@ -24,20 +24,27 @@ pub struct OutsideLevel;
 
 fn enter_outside_level_event(
     mut commands: Commands,
-    assets: Res<SantaAssets>,
+    santa_assets: Res<SantaAssets>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     texture_atlases: Res<Assets<TextureAtlas>>,
     mut player_query: Query<&mut Position, With<Santa>>,
     spawn_point: Res<SpawnPoint>,
 ) {
-    commands
+    let level_camera_boundary = LevelCameraBoundary(Rect {
+        top: 105.0,
+        bottom: -105.0,
+        left: -270.0,
+        right: 270.0,
+    });
+
+    let level_root = commands
         .spawn()
         .insert(OutsideLevel)
         .with_children(|parent| {
             parent.spawn_bundle(SpriteBundle {
                 material: materials.add(
                     texture_atlases
-                        .get(assets.outside_background.clone())
+                        .get(santa_assets.outside_background.clone())
                         .unwrap()
                         .texture
                         .clone()
@@ -46,20 +53,17 @@ fn enter_outside_level_event(
                 transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
                 ..Default::default()
             });
-            parent.spawn().insert(Snowflakes);
-        });
+
+            init_snowflakes(parent, &level_camera_boundary, &santa_assets);
+        })
+        .id();
     commands.insert_resource(LevelPlayerBoundary(Rect {
         top: 105.0,
         bottom: -97.0,
         left: -270.0,
         right: 270.0,
     }));
-    commands.insert_resource(LevelCameraBoundary(Rect {
-        top: 105.0,
-        bottom: -105.0,
-        left: -270.0,
-        right: 270.0,
-    }));
+    commands.insert_resource(level_camera_boundary);
     for mut position in player_query.iter_mut() {
         position.0 = spawn_point.0;
     }

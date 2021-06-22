@@ -1,14 +1,15 @@
 use crate::assets::SantaAssetPlugin;
 use crate::camera::SantaCameraPlugin;
+use crate::dialogue::DialoguePlugin;
 use crate::levels::SantaLevelPlugin;
 use crate::physics::SantaPhysicsPlugin;
 use crate::player::SantaPlayerPlugin;
 use crate::render::SantaRenderPlugin;
+use crate::snowflakes::SnowflakesPlugin;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use log::LevelFilter;
 use simplelog::{ColorChoice, Config, TermLogger, TerminalMode};
-use crate::dialogue::DialoguePlugin;
 
 #[macro_use]
 extern crate lazy_static;
@@ -54,6 +55,7 @@ fn main() {
         .add_plugin(SantaPhysicsPlugin)
         .add_plugin(SantaRenderPlugin)
         .add_plugin(DialoguePlugin)
+        .add_plugin(SnowflakesPlugin)
         .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .run();

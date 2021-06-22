@@ -87,6 +87,6 @@ impl Plugin for SantaPhysicsPlugin {
                 .with_system(move_system.system().label("move"))
                 .with_system(level_boundary_system.system().after("move")),
         )
-            .insert_resource(GroundState::default());
+        .insert_resource(GroundState::default());
     }
 }
