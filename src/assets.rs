@@ -248,8 +248,7 @@ impl Plugin for SantaAssetPlugin {
         app.init_resource::<AssetsLoading>()
             .add_startup_stage_before(StartupStage::Startup, "load_assets", SystemStage::parallel().with_system(load_assets_system
                 .system()
-                .label("load_assets")
-                .before("init_santa")))
+                .label("load_assets")))
             .add_system(
                 check_assets_ready_system
                     .system()

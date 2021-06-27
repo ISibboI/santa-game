@@ -140,8 +140,7 @@ impl Plugin for SantaPlayerPlugin {
         app.add_startup_system(
             init_santa_system
                 .system()
-                .label("init_santa")
-                .after("load_assets"),
+                .label("init_santa"),
         )
         .add_system(control_santa_system.system().label("control_santa"))
         .add_system(

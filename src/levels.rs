@@ -164,8 +164,7 @@ impl Plugin for SantaLevelPlugin {
         app.add_startup_system(
             init_level_system
                 .system()
-                .label("init_level")
-                .after("load_assets"),
+                .label("init_level"),
         )
         .add_stage_before(CoreStage::Update, LevelStage, SystemStage::parallel())
         .add_state_to_stage(LevelStage, LevelState::Outside)
