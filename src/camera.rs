@@ -102,15 +102,17 @@ pub struct SantaCameraPlugin;
 impl Plugin for SantaCameraPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_startup_system(init_camera_system.system())
-            .add_system_to_stage(
-                CoreStage::PostUpdate,
+            .add_system(
                 camera_system::<SantaOrthoProjection>
                     .system()
-                    .label("camera_system"),
+                    .label("camera_system")
+                    .after("position_sprites"),
             )
-            .add_system_to_stage(
-                CoreStage::PostUpdate,
-                follow_player_camera_system.system().after("camera_system"),
+            .add_system(
+                follow_player_camera_system
+                    .system()
+                    .label("follow_player_camera")
+                    .after("camera_system"),
             );
     }
 }

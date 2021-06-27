@@ -16,12 +16,7 @@ pub struct Santa;
 
 pub struct AnimationTimer(pub Timer);
 
-fn init_santa_system(
-    mut commands: Commands,
-    assets: Res<SantaAssets>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-    texture_atlases: Res<Assets<TextureAtlas>>,
-) {
+fn init_santa_system(mut commands: Commands, assets: Res<SantaAssets>) {
     commands
         .spawn()
         .insert(Santa)
@@ -142,14 +137,19 @@ pub struct SantaPlayerPlugin;
 
 impl Plugin for SantaPlayerPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(init_santa_system.system())
-            .add_system_to_stage(
-                CoreStage::PreUpdate,
-                control_santa_system.system().label("control_santa"),
-            )
-            .add_system_to_stage(
-                CoreStage::PreUpdate,
-                animate_santa_system.system().after("control_santa"),
-            );
+        app.add_startup_system(
+            init_santa_system
+                .system()
+                .label("init_santa")
+                .after("load_assets"),
+        )
+        .add_system(control_santa_system.system().label("control_santa"))
+        .add_system(
+            animate_santa_system
+                .system()
+                .label("animate_santa")
+                .after("control_santa")
+                .before("gravity"),
+        );
     }
 }

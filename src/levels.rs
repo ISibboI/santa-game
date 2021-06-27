@@ -37,7 +37,7 @@ fn enter_outside_level_event(
         right: 270.0,
     });
 
-    let level_root = commands
+    commands
         .spawn()
         .insert(OutsideLevel)
         .with_children(|parent| {
@@ -55,8 +55,7 @@ fn enter_outside_level_event(
             });
 
             init_snowflakes(parent, &level_camera_boundary, &santa_assets);
-        })
-        .id();
+        });
     commands.insert_resource(LevelPlayerBoundary(Rect {
         top: 105.0,
         bottom: -97.0,
@@ -160,38 +159,41 @@ pub struct LevelStage;
 
 impl Plugin for SantaLevelPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(init_level_system.system())
-            .add_stage_before(CoreStage::PreUpdate, LevelStage, SystemStage::parallel())
-            .add_state_to_stage(LevelStage, LevelState::Outside)
-            .add_system_set_to_stage(
-                LevelStage,
-                SystemSet::on_enter(LevelState::Outside)
-                    .with_system(enter_outside_level_event.system()),
-            )
-            .add_system_set_to_stage(
-                LevelStage,
-                SystemSet::on_update(LevelState::Outside)
-                    .with_system(update_outside_level_event.system()),
-            )
-            .add_system_set_to_stage(
-                LevelStage,
-                SystemSet::on_exit(LevelState::Outside)
-                    .with_system(exit_outside_level_event.system()),
-            )
-            .add_system_set_to_stage(
-                LevelStage,
-                SystemSet::on_enter(LevelState::Indoors)
-                    .with_system(enter_indoors_level_event.system()),
-            )
-            .add_system_set_to_stage(
-                LevelStage,
-                SystemSet::on_update(LevelState::Indoors)
-                    .with_system(update_indoors_level_event.system()),
-            )
-            .add_system_set_to_stage(
-                LevelStage,
-                SystemSet::on_exit(LevelState::Indoors)
-                    .with_system(exit_indoors_level_event.system()),
-            );
+        app.add_startup_system(
+            init_level_system
+                .system()
+                .label("init_level")
+                .after("load_assets"),
+        )
+        .add_stage_before(CoreStage::Update, LevelStage, SystemStage::parallel())
+        .add_state_to_stage(LevelStage, LevelState::Outside)
+        .add_system_set_to_stage(
+            LevelStage,
+            SystemSet::on_enter(LevelState::Outside)
+                .with_system(enter_outside_level_event.system()),
+        )
+        .add_system_set_to_stage(
+            LevelStage,
+            SystemSet::on_update(LevelState::Outside)
+                .with_system(update_outside_level_event.system()),
+        )
+        .add_system_set_to_stage(
+            LevelStage,
+            SystemSet::on_exit(LevelState::Outside).with_system(exit_outside_level_event.system()),
+        )
+        .add_system_set_to_stage(
+            LevelStage,
+            SystemSet::on_enter(LevelState::Indoors)
+                .with_system(enter_indoors_level_event.system()),
+        )
+        .add_system_set_to_stage(
+            LevelStage,
+            SystemSet::on_update(LevelState::Indoors)
+                .with_system(update_indoors_level_event.system()),
+        )
+        .add_system_set_to_stage(
+            LevelStage,
+            SystemSet::on_exit(LevelState::Indoors).with_system(exit_indoors_level_event.system()),
+        );
     }
 }

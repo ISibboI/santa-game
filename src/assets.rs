@@ -18,6 +18,7 @@ pub struct Speech {
     pub text: String,
 }
 
+#[derive(Default)]
 pub struct SantaAssets {
     // Fonts
     pub font: Handle<Font>,
@@ -245,7 +246,14 @@ pub struct SantaAssetPlugin;
 impl Plugin for SantaAssetPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.init_resource::<AssetsLoading>()
-            .add_startup_system_to_stage(StartupStage::PreStartup, load_assets_system.system())
-            .add_system(check_assets_ready_system.system());
+            .add_startup_stage_before(StartupStage::Startup, "load_assets", SystemStage::parallel().with_system(load_assets_system
+                .system()
+                .label("load_assets")
+                .before("init_santa")))
+            .add_system(
+                check_assets_ready_system
+                    .system()
+                    .label("check_assets_ready"),
+            );
     }
 }

@@ -1,6 +1,5 @@
 use crate::levels::LevelPlayerBoundary;
-use crate::{TIME_STEP, TIME_STEP_F64};
-use bevy::core::FixedTimestep;
+use crate::TIME_STEP;
 use bevy::prelude::*;
 
 #[derive(Default)]
@@ -41,7 +40,7 @@ fn level_boundary_system(
         Option<&mut GroundState>,
     )>,
 ) {
-    for (mut position, mut speed, sprite_boundary, mut ground_state) in query.iter_mut() {
+    for (mut position, mut speed, sprite_boundary, ground_state) in query.iter_mut() {
         let min_x = level_boundary.0.left - sprite_boundary.0.left;
         let max_x = level_boundary.0.right - sprite_boundary.0.right;
         let min_y = level_boundary.0.bottom - sprite_boundary.0.bottom;
@@ -78,15 +77,15 @@ pub struct SantaPhysicsPlugin;
 
 impl Plugin for SantaPhysicsPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_stage_after(
-            CoreStage::Update,
-            "santa_physics",
-            SystemStage::parallel()
-                //.with_run_criteria(FixedTimestep::step(TIME_STEP_F64))
-                .with_system(gravity_system.system().before("move"))
-                .with_system(move_system.system().label("move"))
-                .with_system(level_boundary_system.system().after("move")),
-        )
-        .insert_resource(GroundState::default());
+        app.add_system(gravity_system.system().label("gravity").before("move"))
+            .add_system(move_system.system().label("move"))
+            .add_system(
+                level_boundary_system
+                    .system()
+                    .label("level_boundary")
+                    .after("move")
+                    .before("position_sprites"),
+            )
+            .insert_resource(GroundState::default());
     }
 }

@@ -29,7 +29,6 @@ fn dialogue_setup_system(mut commands: Commands) {
 
 fn dialogue_trigger_system(
     time: Res<Time>,
-    mut commands: Commands,
     mut dialogue_state: ResMut<DialogueState>,
     mut dialogue_queue: ResMut<DialogueQueue>,
     mut dialogue_timer: ResMut<DialogueTimer>,
@@ -42,10 +41,10 @@ fn dialogue_trigger_system(
     let has_active_dialogue = active_dialogue_query.iter().next().is_some();
     let on_ground = santa_query
         .iter()
-        .any(|(position, ground_state)| ground_state.on_ground);
+        .any(|(_, ground_state)| ground_state.on_ground);
     let position = santa_query
         .iter()
-        .map(|(position, ground_state)| position)
+        .map(|(position, _)| position)
         .next()
         .unwrap();
     let indoors = indoors_level_query.iter().next().is_some();
@@ -181,8 +180,18 @@ impl Plugin for DialoguePlugin {
         app.insert_resource(DialogueState::Hello)
             .insert_resource(DialogueQueue::default())
             .insert_resource(DialogueTimer(Timer::from_seconds(99999999.0, true)))
-            .add_system(dialogue_setup_system.system())
-            .add_system(dialogue_trigger_system.system())
-            .add_system(dialogue_execution_system.system());
+            .add_system(dialogue_setup_system.system().label("dialogue_setup"))
+            .add_system(
+                dialogue_trigger_system
+                    .system()
+                    .label("dialogue_trigger")
+                    .after("dialogue_setup"),
+            )
+            .add_system(
+                dialogue_execution_system
+                    .system()
+                    .label("dialogue_execution")
+                    .after("dialogue_trigger"),
+            );
     }
 }
