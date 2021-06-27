@@ -40,6 +40,8 @@ fn enter_outside_level_event(
     commands
         .spawn()
         .insert(OutsideLevel)
+        .insert(GlobalTransform::default())
+        .insert(Transform::default())
         .with_children(|parent| {
             parent.spawn_bundle(SpriteBundle {
                 material: materials.add(

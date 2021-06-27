@@ -10,7 +10,7 @@ use rand::thread_rng;
 static SNOWFLAKE_DENSITY: f32 = 0.002;
 
 #[derive(Default, Clone, Debug)]
-struct Snowflake;
+struct Snowflake(Vec2);
 
 pub fn init_snowflakes(
     parent: &mut ChildBuilder,
@@ -48,17 +48,17 @@ pub fn init_snowflakes(
             .spawn_bundle(SpriteSheetBundle {
                 texture_atlas: santa_assets.snowflakes.clone(),
                 sprite,
-                global_transform: GlobalTransform::from_translation(translation),
+                transform: Transform::from_translation(translation),
                 ..Default::default()
             })
-            .insert(Snowflake)
+            .insert(Snowflake(Vec2::new(position.0.x, position.0.y)))
             .insert(position);
     }
 }
 
 fn update_snowflakes_system(
     time: Res<Time>,
-    mut snowflakes_query: Query<(&mut Position, &mut GlobalTransform), With<Snowflake>>,
+    mut snowflakes_query: Query<(&mut Snowflake, &mut Position)>,
     level_camera_boundary: Res<LevelCameraBoundary>,
 ) {
     let mut rng = thread_rng();
@@ -75,32 +75,32 @@ fn update_snowflakes_system(
         .set_lacunarity(1.5)
         .set_persistence(0.7);
 
-    for (mut position, mut global_transform) in snowflakes_query.iter_mut() {
-        position.0.y -= 10.0 * TIME_STEP;
-        if position.0.y < level_camera_boundary.0.bottom - 10.0 {
-            position.0.x = Uniform::new(
+    for (mut snowflake, mut position) in snowflakes_query.iter_mut() {
+        snowflake.0.y -= 10.0 * TIME_STEP;
+        if snowflake.0.y < level_camera_boundary.0.bottom - 10.0 {
+            snowflake.0.x = Uniform::new(
                 level_camera_boundary.0.left - 10.0,
                 level_camera_boundary.0.right + 10.0,
             )
             .sample(&mut rng);
-            position.0.y = level_camera_boundary.0.top + 10.0;
+            snowflake.0.y = level_camera_boundary.0.top + 10.0;
         }
 
         let displacement_x = noise_x.get([
-            position.0.x as f64,
-            position.0.y as f64,
+            snowflake.0.x as f64,
+            snowflake.0.y as f64,
             time.seconds_since_startup() * 2.0,
         ]) as f32
             * 40.0;
         let displacement_y = noise_y.get([
-            position.0.x as f64,
-            position.0.y as f64,
+            snowflake.0.x as f64,
+            snowflake.0.y as f64,
             time.seconds_since_startup() * 2.0,
         ]) as f32
             * 25.0;
 
-        global_transform.translation.x = position.0.x + displacement_x;
-        global_transform.translation.y = position.0.y + displacement_y;
+        position.0.x = snowflake.0.x + displacement_x;
+        position.0.y = snowflake.0.y + displacement_y;
     }
 }
 
