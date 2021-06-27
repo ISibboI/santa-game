@@ -16,3 +16,7 @@ noise = "0.7"
 simplelog = "0.10"
 log = "0.4"
 lazy_static = "1"
+
+[profile.release]
+debug = true
+
