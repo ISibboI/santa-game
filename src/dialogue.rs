@@ -180,7 +180,7 @@ impl Plugin for DialoguePlugin {
         app.insert_resource(DialogueState::Hello)
             .insert_resource(DialogueQueue::default())
             .insert_resource(DialogueTimer(Timer::from_seconds(99999999.0, true)))
-            .add_system(dialogue_setup_system.system().label("dialogue_setup"))
+            .add_startup_system(dialogue_setup_system.system().label("dialogue_setup"))
             .add_system(
                 dialogue_trigger_system
                     .system()
