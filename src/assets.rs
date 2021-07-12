@@ -246,9 +246,12 @@ pub struct SantaAssetPlugin;
 impl Plugin for SantaAssetPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.init_resource::<AssetsLoading>()
-            .add_startup_stage_before(StartupStage::Startup, "load_assets", SystemStage::parallel().with_system(load_assets_system
-                .system()
-                .label("load_assets")))
+            .add_startup_stage_before(
+                StartupStage::Startup,
+                "load_assets",
+                SystemStage::parallel()
+                    .with_system(load_assets_system.system().label("load_assets")),
+            )
             .add_system(
                 check_assets_ready_system
                     .system()

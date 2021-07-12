@@ -137,18 +137,14 @@ pub struct SantaPlayerPlugin;
 
 impl Plugin for SantaPlayerPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(
-            init_santa_system
-                .system()
-                .label("init_santa"),
-        )
-        .add_system(control_santa_system.system().label("control_santa"))
-        .add_system(
-            animate_santa_system
-                .system()
-                .label("animate_santa")
-                .after("control_santa")
-                .before("gravity"),
-        );
+        app.add_startup_system(init_santa_system.system().label("init_santa"))
+            .add_system(control_santa_system.system().label("control_santa"))
+            .add_system(
+                animate_santa_system
+                    .system()
+                    .label("animate_santa")
+                    .after("control_santa")
+                    .before("gravity"),
+            );
     }
 }

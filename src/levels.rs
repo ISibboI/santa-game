@@ -161,40 +161,38 @@ pub struct LevelStage;
 
 impl Plugin for SantaLevelPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(
-            init_level_system
-                .system()
-                .label("init_level"),
-        )
-        .add_stage_before(CoreStage::Update, LevelStage, SystemStage::parallel())
-        .add_state_to_stage(LevelStage, LevelState::Outside)
-        .add_system_set_to_stage(
-            LevelStage,
-            SystemSet::on_enter(LevelState::Outside)
-                .with_system(enter_outside_level_event.system()),
-        )
-        .add_system_set_to_stage(
-            LevelStage,
-            SystemSet::on_update(LevelState::Outside)
-                .with_system(update_outside_level_event.system()),
-        )
-        .add_system_set_to_stage(
-            LevelStage,
-            SystemSet::on_exit(LevelState::Outside).with_system(exit_outside_level_event.system()),
-        )
-        .add_system_set_to_stage(
-            LevelStage,
-            SystemSet::on_enter(LevelState::Indoors)
-                .with_system(enter_indoors_level_event.system()),
-        )
-        .add_system_set_to_stage(
-            LevelStage,
-            SystemSet::on_update(LevelState::Indoors)
-                .with_system(update_indoors_level_event.system()),
-        )
-        .add_system_set_to_stage(
-            LevelStage,
-            SystemSet::on_exit(LevelState::Indoors).with_system(exit_indoors_level_event.system()),
-        );
+        app.add_startup_system(init_level_system.system().label("init_level"))
+            .add_stage_before(CoreStage::Update, LevelStage, SystemStage::parallel())
+            .add_state_to_stage(LevelStage, LevelState::Outside)
+            .add_system_set_to_stage(
+                LevelStage,
+                SystemSet::on_enter(LevelState::Outside)
+                    .with_system(enter_outside_level_event.system()),
+            )
+            .add_system_set_to_stage(
+                LevelStage,
+                SystemSet::on_update(LevelState::Outside)
+                    .with_system(update_outside_level_event.system()),
+            )
+            .add_system_set_to_stage(
+                LevelStage,
+                SystemSet::on_exit(LevelState::Outside)
+                    .with_system(exit_outside_level_event.system()),
+            )
+            .add_system_set_to_stage(
+                LevelStage,
+                SystemSet::on_enter(LevelState::Indoors)
+                    .with_system(enter_indoors_level_event.system()),
+            )
+            .add_system_set_to_stage(
+                LevelStage,
+                SystemSet::on_update(LevelState::Indoors)
+                    .with_system(update_indoors_level_event.system()),
+            )
+            .add_system_set_to_stage(
+                LevelStage,
+                SystemSet::on_exit(LevelState::Indoors)
+                    .with_system(exit_indoors_level_event.system()),
+            );
     }
 }
